@@ -1,0 +1,80 @@
+<div class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-green-900/20 via-[#1a1a1a] to-blue-900/20">
+    <!-- Floating Books -->
+    <div class="absolute top-20 left-20 w-32 h-48 opacity-20">
+      <svg viewBox="0 0 100 150" class="text-orange-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#8B4513"/>
+      </svg>
+    </div>
+    <div class="absolute top-40 right-32 w-24 h-36 opacity-20 animation-delay-2000">
+      <svg viewBox="0 0 100 150" class="text-blue-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#1e3a8a"/>
+      </svg>
+    </div>
+    <div class="absolute bottom-32 left-1/4 w-28 h-42 opacity-20 animation-delay-4000">
+      <svg viewBox="0 0 100 150" class="text-yellow-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#854d0e"/>
+      </svg>
+    </div>
+    <div class="absolute bottom-20 right-1/4 w-36 h-54 opacity-20 animation-delay-1000">
+      <svg viewBox="0 0 100 150" class="text-green-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#166534"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Success Card -->
+  <div class="relative z-10 bg-[#2a2a2a]/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-2xl w-full border border-gray-700">
+    <!-- Success Icon -->
+    <div class="flex justify-center mb-6">
+      <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-bold text-white mb-2 text-center">Your purchase of the</h1>
+    <h2 class="text-2xl font-bold text-white mb-6 text-center">following reads is successful</h2>
+
+    <!-- Purchased Books -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      @for (item of purchasedBooks; track item.book.id) {
+        <div class="bg-[#1a1a1a] rounded-lg p-4">
+          <div class="flex gap-3">
+            <img [src]="item.book.coverImage" 
+                 [alt]="item.book.title"
+                 class="w-20 h-28 object-cover rounded">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-white font-semibold text-sm mb-1 truncate">{{ item.book.title }}</h3>
+              <p class="text-gray-400 text-xs mb-2">by {{ item.book.author }}</p>
+              <p class="text-xs text-gray-500 mb-2 line-clamp-2">{{ item.book.description }}</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">{{ item.book.format }}</span>
+                <div class="text-right">
+                  <span class="text-white font-bold text-sm">₹{{ item.book.price }}</span>
+                  <p class="text-xs text-gray-500">Delivery by {{ item.book.deliveryDate }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="text-center">
+      <a routerLink="/" 
+         class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-all hover:scale-105">
+        Continue your Shopping
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>

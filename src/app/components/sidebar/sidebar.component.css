@@ -1,0 +1,15 @@
+/* Sidebar scrollbar styling */
+aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 3px;
+}
+
+/* Made with Bob */

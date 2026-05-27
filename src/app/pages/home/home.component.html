@@ -1,0 +1,96 @@
+<div class="flex">
+  <!-- Sidebar -->
+  <app-sidebar (categorySelected)="onCategorySelected($event)"></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <!-- Search and Filters -->
+    <div class="mb-6">
+      <div class="flex flex-wrap gap-4 items-center">
+        <!-- Search -->
+        <div class="flex-1 min-w-[300px]">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search you want to read here"
+              class="w-full bg-[#2a2a2a] text-white px-4 py-2.5 pr-10 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+            <svg class="absolute right-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <select [(ngModel)]="selectedLanguage" class="bg-[#2a2a2a] text-white px-4 py-2.5 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          <option value="All">Language: All</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+        </select>
+
+        <select [(ngModel)]="selectedFormat" class="bg-[#2a2a2a] text-white px-4 py-2.5 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          <option value="All">Format (Paperback, eBook etc): All</option>
+          <option value="Paperback">Paperback</option>
+          <option value="Hardcover">Hardcover</option>
+          <option value="eBook">eBook</option>
+        </select>
+
+        <select [(ngModel)]="selectedPriceRange" class="bg-[#2a2a2a] text-white px-4 py-2.5 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          <option value="All">Price Range: All</option>
+          <option value="0-200">₹0 - ₹200</option>
+          <option value="200-500">₹200 - ₹500</option>
+          <option value="500+">₹500+</option>
+        </select>
+
+        <select [(ngModel)]="selectedSort" class="bg-[#2a2a2a] text-white px-4 py-2.5 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          <option value="Relevance">Sort by: Relevance</option>
+          <option value="Price: Low to High">Price: Low to High</option>
+          <option value="Price: High to Low">Price: High to Low</option>
+          <option value="Rating">Rating</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Recommended for You -->
+    @if (recommendedBooks.length > 0) {
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">Recommended for You</h2>
+        <div class="grid grid-cols-1 gap-4">
+          @for (book of recommendedBooks; track book.id) {
+            <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Bestsellers this Month -->
+    @if (bestsellers.length > 0) {
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">Bestsellers this Month</h2>
+        <div class="grid grid-cols-1 gap-4">
+          @for (book of bestsellers; track book.id) {
+            <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- New Launches -->
+    @if (newLaunches.length > 0) {
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">New Launches</h2>
+        <div class="grid grid-cols-1 gap-4">
+          @for (book of newLaunches; track book.id) {
+            <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
+          }
+        </div>
+      </section>
+    }
+
+    @if (filteredBooks.length === 0) {
+      <div class="text-center py-12">
+        <p class="text-gray-400 text-lg">No books found matching your criteria.</p>
+      </div>
+    }
+  </main>
+</div>

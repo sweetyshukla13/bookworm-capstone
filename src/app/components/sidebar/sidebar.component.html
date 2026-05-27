@@ -1,0 +1,19 @@
+<aside class="w-64 bg-[#2a2a2a] h-[calc(100vh-64px)] overflow-y-auto sticky top-16 hidden lg:block">
+  <div class="p-4">
+    <h2 class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Categories</h2>
+    <nav class="space-y-1">
+      @for (category of categories; track category.name) {
+        <button
+          (click)="selectCategory(category.name)"
+          [class.bg-blue-600]="selectedCategory === category.name"
+          [class.text-white]="selectedCategory === category.name"
+          [class.text-gray-300]="selectedCategory !== category.name"
+          [class.hover:bg-gray-700]="selectedCategory !== category.name"
+          class="w-full text-left px-4 py-2.5 rounded-lg transition-colors flex items-center space-x-3">
+          <span class="text-lg">{{ category.icon }}</span>
+          <span class="text-sm">{{ category.name }}</span>
+        </button>
+      }
+    </nav>
+  </div>
+</aside>

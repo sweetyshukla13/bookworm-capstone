@@ -1,0 +1,129 @@
+<div class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-[#1a1a1a] to-orange-900/20">
+    <!-- Floating Books -->
+    <div class="absolute top-20 left-20 w-32 h-48 opacity-20">
+      <svg viewBox="0 0 100 150" class="text-orange-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#8B4513"/>
+      </svg>
+    </div>
+    <div class="absolute top-40 right-32 w-24 h-36 opacity-20 animation-delay-2000">
+      <svg viewBox="0 0 100 150" class="text-blue-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#1e3a8a"/>
+      </svg>
+    </div>
+    <div class="absolute bottom-32 left-1/4 w-28 h-42 opacity-20 animation-delay-4000">
+      <svg viewBox="0 0 100 150" class="text-yellow-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#854d0e"/>
+      </svg>
+    </div>
+    <div class="absolute bottom-20 right-1/4 w-36 h-54 opacity-20 animation-delay-1000">
+      <svg viewBox="0 0 100 150" class="text-green-600 animate-float">
+        <rect x="10" y="10" width="80" height="120" rx="5" fill="currentColor"/>
+        <rect x="15" y="15" width="70" height="110" rx="3" fill="#166534"/>
+      </svg>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div class="absolute top-1/4 right-1/3 w-16 h-16 bg-orange-500/10 rounded-full animate-pulse"></div>
+    <div class="absolute bottom-1/3 left-1/4 w-24 h-24 bg-blue-500/10 rounded-full animate-pulse animation-delay-2000"></div>
+    <div class="absolute top-1/2 right-1/4 w-20 h-20 bg-yellow-500/10 rounded-full animate-pulse animation-delay-4000"></div>
+  </div>
+
+  <!-- Payment Card -->
+  <div class="relative z-10 bg-[#2a2a2a]/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md w-full border border-gray-700">
+    <h1 class="text-2xl font-bold text-white mb-2 text-center">Complete Payment</h1>
+    <p class="text-center text-gray-400 mb-6">Payable Amount: <span class="text-2xl font-bold text-blue-400">₹{{ orderSummary.total }}</span></p>
+
+    <!-- Payment Methods -->
+    <div class="grid grid-cols-4 gap-3 mb-6">
+      <button (click)="selectPaymentMethod('credit')"
+              [class.bg-blue-600]="selectedPaymentMethod() === 'credit'"
+              [class.bg-[#3a3a3a]]="selectedPaymentMethod() !== 'credit'"
+              class="p-3 rounded-lg text-white text-sm font-medium transition-all hover:scale-105">
+        Credit card
+      </button>
+      <button (click)="selectPaymentMethod('debit')"
+              [class.bg-blue-600]="selectedPaymentMethod() === 'debit'"
+              [class.bg-[#3a3a3a]]="selectedPaymentMethod() !== 'debit'"
+              class="p-3 rounded-lg text-white text-sm font-medium transition-all hover:scale-105">
+        Debit card
+      </button>
+      <button (click)="selectPaymentMethod('upi')"
+              [class.bg-blue-600]="selectedPaymentMethod() === 'upi'"
+              [class.bg-[#3a3a3a]]="selectedPaymentMethod() !== 'upi'"
+              class="p-3 rounded-lg text-white text-sm font-medium transition-all hover:scale-105">
+        UPI
+      </button>
+      <button (click)="selectPaymentMethod('wallet')"
+              [class.bg-blue-600]="selectedPaymentMethod() === 'wallet'"
+              [class.bg-[#3a3a3a]]="selectedPaymentMethod() !== 'wallet'"
+              class="p-3 rounded-lg text-white text-sm font-medium transition-all hover:scale-105">
+        Wallet
+      </button>
+    </div>
+
+    <!-- Payment Form -->
+    @if (selectedPaymentMethod() === 'credit' || selectedPaymentMethod() === 'debit') {
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Card Number</label>
+          <input type="text" [(ngModel)]="cardNumber" placeholder="XXXX-XXXX-XXXX-XXXX"
+                 class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Name on Card</label>
+          <input type="text" [(ngModel)]="cardName" placeholder="Name"
+                 class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">CVV</label>
+            <input type="text" [(ngModel)]="cvv" placeholder="XXX"
+                   class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Date of Expiry</label>
+            <input type="text" [(ngModel)]="expiryDate" placeholder="MM/YYYY"
+                   class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (selectedPaymentMethod() === 'upi') {
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">UPI ID</label>
+          <input type="text" placeholder="username@upi"
+                 class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+        </div>
+      </div>
+    }
+
+    @if (selectedPaymentMethod() === 'wallet') {
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Select Wallet</label>
+          <select class="w-full bg-[#1a1a1a] text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
+            <option>Paytm</option>
+            <option>PhonePe</option>
+            <option>Google Pay</option>
+            <option>Amazon Pay</option>
+          </select>
+        </div>
+      </div>
+    }
+
+    <button (click)="processPayment()" 
+            class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 flex items-center justify-center gap-2">
+      Pay Now
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+      </svg>
+    </button>
+  </div>
+</div>

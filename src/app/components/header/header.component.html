@@ -1,0 +1,70 @@
+<header class="bg-[#2a2a2a] border-b border-gray-800 sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+        </svg>
+        <a routerLink="/" class="text-xl font-bold text-white">Book Worm</a>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center space-x-6">
+        <a routerLink="/" routerLinkActive="text-blue-500" [routerLinkActiveOptions]="{exact: true}" 
+           class="text-gray-300 hover:text-white transition-colors">My Orders</a>
+        <a routerLink="/wishlist" routerLinkActive="text-blue-500" 
+           class="text-gray-300 hover:text-white transition-colors">My Wishlist</a>
+        <a routerLink="/writers" routerLinkActive="text-blue-500" 
+           class="text-gray-300 hover:text-white transition-colors">My Writers</a>
+      </nav>
+
+      <!-- Right side icons -->
+      <div class="flex items-center space-x-4">
+        <a routerLink="/cart" class="relative text-gray-300 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          @if (cartCount() > 0) {
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {{ cartCount() }}
+            </span>
+          }
+        </a>
+        
+        <!-- User Menu -->
+        @if (isAuthenticated()) {
+          <div class="relative">
+            <button (click)="toggleUserMenu()" class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span class="hidden md:inline text-sm">{{ currentUser()?.name }}</span>
+            </button>
+            
+            @if (showUserMenu()) {
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-200">
+                  <p class="text-sm font-medium text-gray-900">{{ currentUser()?.name }}</p>
+                  <p class="text-xs text-gray-500">{{ currentUser()?.email }}</p>
+                </div>
+                <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                  Sign Out
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <a routerLink="/login" class="text-gray-300 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</header>

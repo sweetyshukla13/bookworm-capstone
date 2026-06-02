@@ -301,11 +301,85 @@ Full API documentation available in:
 - Add to cart (local)
 - Cart management (local)
 
+## 🎁 Coupon System
+
+### Backend Implementation
+
+**Coupon Controller:** `backend/src/controllers/couponController.js`
+**Coupon Routes:** `backend/src/routes/coupons.js`
+
+### API Endpoints
+
+#### Validate Coupon
+```http
+POST /api/v1/coupons/validate
+Content-Type: application/json
+
+{
+  "code": "WELCOME10",
+  "orderAmount": 500
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Coupon applied successfully",
+  "coupon": {
+    "code": "WELCOME10",
+    "discountType": "percentage",
+    "discountValue": 10,
+    "minOrderAmount": 299,
+    "maxDiscountAmount": 100
+  },
+  "discountAmount": 50
+}
+```
+
+#### Get All Active Coupons
+```http
+GET /api/v1/coupons
+```
+
+### Sample Coupons Available
+
+| Code | Type | Discount | Min Order | Max Discount |
+|------|------|----------|-----------|--------------|
+| WELCOME10 | Percentage | 10% | ₹299 | ₹100 |
+| SAVE20 | Percentage | 20% | ₹500 | ₹200 |
+| FLAT50 | Fixed | ₹50 | ₹200 | - |
+| MEGA30 | Percentage | 30% | ₹1000 | ₹500 |
+| FLAT100 | Fixed | ₹100 | ₹800 | - |
+| BOOKWORM15 | Percentage | 15% | ₹400 | ₹150 |
+
+### Frontend Integration
+
+The coupon system is integrated into:
+- **Cart Page:** Apply coupons before checkout
+- **Payment Page:** Coupon discount reflected in order summary
+- **BookService:** Handles coupon validation and discount calculation
+
+### Validation Rules
+
+1. ✅ Coupon code exists
+2. ✅ Coupon is active
+3. ✅ Coupon has not expired
+4. ✅ Usage limit not exceeded
+5. ✅ Minimum order amount requirement met
+6. ✅ Discount calculation with max cap (for percentage discounts)
+
 🚧 **Pending:**
-- Backend controllers for cart, orders, payments
-- Additional database models
-- Database seeding
+- Additional database models (some implemented)
 - Comprehensive testing
 - Production deployment configuration
 
-The integration is complete and functional! The frontend now communicates with the backend API for authentication and book data.
+✅ **Recently Added:**
+- Order system with order history
+- Wishlist functionality
+- Coupon validation system
+- Address management
+- Review system
+- Buy Again feature
+
+The integration is complete and functional! The frontend now communicates with the backend API for authentication, books, orders, wishlist, coupons, and reviews.

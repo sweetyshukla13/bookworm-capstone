@@ -1,0 +1,1196 @@
+openapi: 3.0.3
+info:
+  title: Book Worm E-Bookstore API
+  description: |
+    Complete API specification for the Book Worm E-Bookstore platform.
+    This API provides endpoints for user authentication, book browsing, cart management, 
+    wishlist, order processing, payments, reviews, coupons, and gift points.
+  version: 1.0.0
+  contact:
+    name: Book Worm Support
+    email: support@bookworm.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.bookworm.com/v1
+    description: Production server
+  - url: https://staging-api.bookworm.com/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization endpoints
+  - name: Books
+    description: Book catalog and search operations
+  - name: Categories
+    description: Book category management
+  - name: Cart
+    description: Shopping cart management
+  - name: Wishlist
+    description: User wishlist operations
+  - name: Orders
+    description: Order processing and history
+  - name: Payments
+    description: Payment processing and refunds
+  - name: Addresses
+    description: User address management
+  - name: Reviews
+    description: Book reviews and ratings
+  - name: Coupons
+    description: Coupon validation and management
+  - name: Shipments
+    description: Order shipment tracking
+  - name: Gift Points
+    description: Gift points balance and redemption
+
+paths:
+  # ==================== AUTHENTICATION ====================
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: {type: string, example: "John Doe"}
+                email: {type: string, format: email, example: "john@example.com"}
+                password: {type: string, format: password, minLength: 8}
+                phone: {type: string, example: "+1234567890"}
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuthResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: {type: string, format: email}
+                password: {type: string, format: password}
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuthResponse'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      operationId: logoutUser
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: "Logged out successfully"}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /auth/profile:
+    get:
+      tags: [Authentication]
+      summary: Get logged in user profile
+      operationId: getUserProfile
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  # ==================== BOOKS ====================
+  /books:
+    get:
+      tags: [Books]
+      summary: Get all books
+      operationId: getAllBooks
+      parameters:
+        - {name: category, in: query, schema: {type: string}}
+        - {name: format, in: query, schema: {type: string, enum: [Paperback, Hardcover, eBook]}}
+        - {name: language, in: query, schema: {type: string}}
+        - {name: minPrice, in: query, schema: {type: number, minimum: 0}}
+        - {name: maxPrice, in: query, schema: {type: number, minimum: 0}}
+        - {name: sortBy, in: query, schema: {type: string, enum: [title, price, rating, author], default: title}}
+        - {name: section, in: query, schema: {type: string, enum: [recommended, bestseller, newlaunch, trending]}}
+        - {name: search, in: query, schema: {type: string}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        '200':
+          description: Books retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  pagination: {$ref: '#/components/schemas/Pagination'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+
+  /books/{id}:
+    get:
+      tags: [Books]
+      summary: Get single book by ID
+      operationId: getBookById
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Book'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /books/{id}/related:
+    get:
+      tags: [Books]
+      summary: Get related books by genre
+      operationId: getRelatedBooks
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 20, default: 6}}
+      responses:
+        '200':
+          description: Related books
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Book'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /books/sections:
+    get:
+      tags: [Books]
+      summary: Get book sections
+      operationId: getBookSections
+      responses:
+        '200':
+          description: Book sections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommended: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  bestseller: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  newlaunch: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  trending: {type: array, items: {$ref: '#/components/schemas/Book'}}
+
+  # ==================== CATEGORIES ====================
+  /categories:
+    get:
+      tags: [Categories]
+      summary: Get all categories
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: Categories retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Category'}
+
+  /categories/{id}/books:
+    get:
+      tags: [Categories]
+      summary: Get books by category
+      operationId: getBooksByCategory
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+        - {name: sortBy, in: query, schema: {type: string, enum: [title, price, rating], default: title}}
+      responses:
+        '200':
+          description: Books retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  pagination: {$ref: '#/components/schemas/Pagination'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== CART ====================
+  /cart:
+    get:
+      tags: [Cart]
+      summary: Get current user's cart
+      operationId: getCart
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Cart retrieved
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Cart'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+    delete:
+      tags: [Cart]
+      summary: Clear entire cart
+      operationId: clearCart
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Cart cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /cart/items:
+    post:
+      tags: [Cart]
+      summary: Add book to cart
+      operationId: addToCart
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bookId, quantity]
+              properties:
+                bookId: {type: string}
+                quantity: {type: integer, minimum: 1, default: 1}
+      responses:
+        '201':
+          description: Item added
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CartItem'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /cart/items/{itemId}:
+    patch:
+      tags: [Cart]
+      summary: Update quantity
+      operationId: updateCartItemQuantity
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: itemId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CartItem'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Cart]
+      summary: Remove item from cart
+      operationId: removeFromCart
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: itemId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Item removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== WISHLIST ====================
+  /wishlist:
+    get:
+      tags: [Wishlist]
+      summary: Get user's wishlist
+      operationId: getWishlist
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 20}}
+      responses:
+        '200':
+          description: Wishlist retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: '#/components/schemas/Book'}}
+                  pagination: {$ref: '#/components/schemas/Pagination'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+    post:
+      tags: [Wishlist]
+      summary: Add book to wishlist
+      operationId: addToWishlist
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bookId]
+              properties:
+                bookId: {type: string}
+      responses:
+        '201':
+          description: Book added to wishlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /wishlist/{bookId}:
+    delete:
+      tags: [Wishlist]
+      summary: Remove from wishlist
+      operationId: removeFromWishlist
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: bookId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Book removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== ORDERS ====================
+  /orders:
+    get:
+      tags: [Orders]
+      summary: Get user's order history
+      operationId: getOrders
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: status, in: query, schema: {type: string, enum: [pending, confirmed, processing, shipped, delivered, cancelled, returned]}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 10}}
+      responses:
+        '200':
+          description: Orders retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: '#/components/schemas/Order'}}
+                  pagination: {$ref: '#/components/schemas/Pagination'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+    post:
+      tags: [Orders]
+      summary: Place new order
+      operationId: createOrder
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [addressId]
+              properties:
+                addressId: {type: string}
+                couponCode: {type: string}
+                giftPointsToRedeem: {type: integer, minimum: 0}
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Order'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /orders/{id}:
+    get:
+      tags: [Orders]
+      summary: Get single order details
+      operationId: getOrderById
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Order'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /orders/{id}/cancel:
+    patch:
+      tags: [Orders]
+      summary: Cancel an order
+      operationId: cancelOrder
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: {type: string}
+      responses:
+        '200':
+          description: Order cancelled
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Order'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /orders/{id}/return:
+    post:
+      tags: [Orders]
+      summary: Request return
+      operationId: requestReturn
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: {type: string}
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      orderItemId: {type: string}
+                      quantity: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Return requested
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+                  returnId: {type: string}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== PAYMENTS ====================
+  /payments:
+    post:
+      tags: [Payments]
+      summary: Initiate payment
+      operationId: initiatePayment
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [orderId, method]
+              properties:
+                orderId: {type: string}
+                method: {type: string, enum: [credit_card, debit_card, upi, net_banking, cash_on_delivery, wallet]}
+                cardDetails:
+                  type: object
+                  properties:
+                    cardNumber: {type: string}
+                    cardHolderName: {type: string}
+                    expiryDate: {type: string, pattern: '^(0[1-9]|1[0-2])\/([0-9]{2})$'}
+                    cvv: {type: string, pattern: '^[0-9]{3,4}$'}
+                upiId: {type: string}
+      responses:
+        '201':
+          description: Payment initiated
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Payment'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment status
+      operationId: getPaymentStatus
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Payment'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /payments/{id}/refund:
+    post:
+      tags: [Payments]
+      summary: Request refund
+      operationId: requestRefund
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: {type: string}
+                amount: {type: number, format: float}
+      responses:
+        '200':
+          description: Refund requested
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+                  refundId: {type: string}
+                  estimatedDays: {type: integer}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== ADDRESSES ====================
+  /addresses:
+    get:
+      tags: [Addresses]
+      summary: Get user's saved addresses
+      operationId: getAddresses
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Addresses retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Address'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+    post:
+      tags: [Addresses]
+      summary: Add new address
+      operationId: addAddress
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AddressInput'}
+      responses:
+        '201':
+          description: Address added
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Address'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /addresses/{id}:
+    put:
+      tags: [Addresses]
+      summary: Update address
+      operationId: updateAddress
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AddressInput'}
+      responses:
+        '200':
+          description: Address updated
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Address'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Addresses]
+      summary: Delete address
+      operationId: deleteAddress
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Address deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /addresses/{id}/default:
+    patch:
+      tags: [Addresses]
+      summary: Set as default address
+      operationId: setDefaultAddress
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Default address set
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Address'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== REVIEWS ====================
+  /books/{id}/reviews:
+    get:
+      tags: [Reviews]
+      summary: Get all reviews for a book
+      operationId: getBookReviews
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 10}}
+        - {name: sortBy, in: query, schema: {type: string, enum: [date, rating, helpful], default: date}}
+      responses:
+        '200':
+          description: Reviews retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: '#/components/schemas/Review'}}
+                  pagination: {$ref: '#/components/schemas/Pagination'}
+                  averageRating: {type: number, format: float}
+                  totalReviews: {type: integer}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Reviews]
+      summary: Submit a review
+      operationId: submitReview
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating, reviewText]
+              properties:
+                rating: {type: number, format: float, minimum: 1, maximum: 5}
+                reviewText: {type: string, minLength: 10, maxLength: 2000}
+      responses:
+        '201':
+          description: Review submitted
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Review'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '403':
+          description: User has not purchased this book
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /reviews/{id}:
+    delete:
+      tags: [Reviews]
+      summary: Delete own review
+      operationId: deleteReview
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Review deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== COUPONS ====================
+  /coupons/validate:
+    post:
+      tags: [Coupons]
+      summary: Validate coupon code
+      operationId: validateCoupon
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, orderTotal]
+              properties:
+                code: {type: string}
+                orderTotal: {type: number, format: float}
+      responses:
+        '200':
+          description: Coupon validated
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Coupon'}
+        '400':
+          description: Invalid or expired coupon
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  # ==================== SHIPMENTS ====================
+  /shipments/{orderId}:
+    get:
+      tags: [Shipments]
+      summary: Get shipment tracking info
+      operationId: getShipmentTracking
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: orderId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Shipment tracking info
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Shipment'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  # ==================== GIFT POINTS ====================
+  /gift-points:
+    get:
+      tags: [Gift Points]
+      summary: Get user's gift points balance
+      operationId: getGiftPoints
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Gift points retrieved
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GiftPoints'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+  /gift-points/redeem:
+    post:
+      tags: [Gift Points]
+      summary: Redeem points on order
+      operationId: redeemGiftPoints
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [points, orderId]
+              properties:
+                points: {type: integer, minimum: 1}
+                orderId: {type: string}
+      responses:
+        '200':
+          description: Points redeemed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  message: {type: string}
+                  pointsRedeemed: {type: integer}
+                  discountAmount: {type: number, format: float}
+                  remainingBalance: {type: integer}
+        '400':
+          description: Insufficient points
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      required: [id, email, name]
+      properties:
+        id: {type: string, example: "user_123"}
+        email: {type: string, format: email, example: "john@example.com"}
+        name: {type: string, example: "John Doe"}
+        phone: {type: string, example: "+1234567890"}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+
+    AuthResponse:
+      type: object
+      required: [success, message, user, token]
+      properties:
+        success: {type: boolean, example: true}
+        message: {type: string, example: "Login successful"}
+        user: {$ref: '#/components/schemas/User'}
+        token: {type: string, example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
+
+    Address:
+      type: object
+      required: [id, name, phone, street, city, state, zipCode, country]
+      properties:
+        id: {type: string, example: "addr_123"}
+        name: {type: string, example: "John Doe"}
+        phone: {type: string, example: "+1234567890"}
+        street: {type: string, example: "123 Main St, Apt 4B"}
+        city: {type: string, example: "New York"}
+        state: {type: string, example: "NY"}
+        zipCode: {type: string, example: "10001"}
+        country: {type: string, example: "USA"}
+        isDefault: {type: boolean, example: true}
+        addressType: {type: string, enum: [home, office, other], example: "home"}
+
+    AddressInput:
+      type: object
+      required: [name, phone, street, city, state, zipCode, country]
+      properties:
+        name: {type: string}
+        phone: {type: string}
+        street: {type: string}
+        city: {type: string}
+        state: {type: string}
+        zipCode: {type: string}
+        country: {type: string}
+        addressType: {type: string, enum: [home, office, other]}
+
+    Book:
+      type: object
+      required: [id, title, author, price, coverImage, description, category, format, rating, reviewCount]
+      properties:
+        id: {type: string, example: "book_123"}
+        title: {type: string, example: "The Art of Focus"}
+        author: {type: string, example: "Arjun Patel"}
+        price: {type: number, format: float, example: 399.00}
+        originalPrice: {type: number, format: float, example: 499.00}
+        discount: {type: number, format: float, example: 20}
+        coverImage: {type: string, format: uri}
+        description: {type: string}
+        category: {$ref: '#/components/schemas/Category'}
+        genre: {$ref: '#/components/schemas/BookGenre'}
+        format: {type: string, enum: [Paperback, Hardcover, eBook, Audiobook]}
+        language: {type: string, example: "English"}
+        rating: {type: number, format: float, minimum: 0, maximum: 5, example: 4.5}
+        reviewCount: {type: integer, example: 234}
+        pages: {type: integer, example: 320}
+        publisher: {type: string, example: "Penguin Books"}
+        publishDate: {type: string, format: date}
+        isbn: {type: string, example: "978-3-16-148410-0"}
+        tags: {type: array, items: {type: string}}
+        inStock: {type: boolean, example: true}
+        stockQuantity: {type: integer, example: 50}
+        deliveryDate: {type: string, example: "Mon, 23 Jul"}
+        isBestseller: {type: boolean}
+        isNewLaunch: {type: boolean}
+        isTrending: {type: boolean}
+
+    BookGenre:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string, example: "genre_123"}
+        name: {type: string, example: "Self-help"}
+        description: {type: string}
+
+    Category:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string, example: "cat_123"}
+        name: {type: string, example: "Self-help"}
+        description: {type: string}
+        bookCount: {type: integer, example: 42}
+        image: {type: string, format: uri}
+
+    Cart:
+      type: object
+      required: [id, userId, items, subtotal, total]
+      properties:
+        id: {type: string, example: "cart_123"}
+        userId: {type: string, example: "user_123"}
+        items: {type: array, items: {$ref: '#/components/schemas/CartItem'}}
+        subtotal: {type: number, format: float, example: 798.00}
+        tax: {type: number, format: float, example: 39.90}
+        deliveryCharges: {type: number, format: float, example: 50.00}
+        discount: {type: number, format: float, example: 100.00}
+        total: {type: number, format: float, example: 787.90}
+        itemCount: {type: integer, example: 3}
+
+    CartItem:
+      type: object
+      required: [id, book, quantity, price]
+      properties:
+        id: {type: string, example: "item_123"}
+        book: {$ref: '#/components/schemas/Book'}
+        quantity: {type: integer, minimum: 1, example: 2}
+        price: {type: number, format: float, example: 399.00}
+        subtotal: {type: number, format: float, example: 798.00}
+
+    Order:
+      type: object
+      required: [id, userId, items, status, total, createdAt]
+      properties:
+        id: {type: string, example: "order_123"}
+        userId: {type: string, example: "user_123"}
+        orderNumber: {type: string, example: "ORD-2024-001"}
+        items: {type: array, items: {$ref: '#/components/schemas/OrderItem'}}
+        status: {type: string, enum: [pending, confirmed, processing, shipped, delivered, cancelled, returned]}
+        subtotal: {type: number, format: float}
+        tax: {type: number, format: float}
+        deliveryCharges: {type: number, format: float}
+        discount: {type: number, format: float}
+        total: {type: number, format: float}
+        shippingAddress: {$ref: '#/components/schemas/Address'}
+        paymentMethod: {type: string, enum: [credit_card, debit_card, upi, net_banking, cash_on_delivery, wallet]}
+        paymentStatus: {type: string, enum: [pending, completed, failed, refunded]}
+        trackingNumber: {type: string}
+        estimatedDelivery: {type: string, format: date}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+
+    OrderItem:
+      type: object
+      required: [id, book, quantity, price]
+      properties:
+        id: {type: string, example: "item_123"}
+        book: {$ref: '#/components/schemas/Book'}
+        quantity: {type: integer, minimum: 1}
+        price: {type: number, format: float}
+        subtotal: {type: number, format: float}
+
+    Payment:
+      type: object
+      required: [id, orderId, amount, method, status]
+      properties:
+        id: {type: string, example: "pay_123"}
+        orderId: {type: string, example: "order_123"}
+        amount: {type: number, format: float, example: 787.90}
+        method: {type: string, enum: [credit_card, debit_card, upi, net_banking, cash_on_delivery, wallet]}
+        status: {type: string, enum: [pending, processing, completed, failed, refunded]}
+        transactionId: {type: string}
+        gatewayResponse: {type: object}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+
+    Shipment:
+      type: object
+      required: [id, orderId, status]
+      properties:
+        id: {type: string, example: "ship_123"}
+        orderId: {type: string, example: "order_123"}
+        trackingNumber: {type: string, example: "TRK123456789"}
+        carrier: {type: string, example: "FedEx"}
+        status: {type: string, enum: [pending, picked_up, in_transit, out_for_delivery, delivered, failed]}
+        estimatedDelivery: {type: string, format: date}
+        actualDelivery: {type: string, format: date}
+        trackingHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              status: {type: string}
+              location: {type: string}
+              timestamp: {type: string, format: date-time}
+              description: {type: string}
+
+    Review:
+      type: object
+      required: [id, bookId, userId, userName, rating, reviewText, date]
+      properties:
+        id: {type: string, example: "rev_123"}
+        bookId: {type: string, example: "book_123"}
+        userId: {type: string, example: "user_123"}
+        userName: {type: string, example: "John Doe"}
+        rating: {type: number, format: float, minimum: 1, maximum: 5, example: 4.5}
+        reviewText: {type: string}
+        date: {type: string, format: date-time}
+        helpfulCount: {type: integer, example: 15}
+        verifiedPurchase: {type: boolean, example: true}
+
+    Coupon:
+      type: object
+      required: [code, discountType, discountValue, isValid]
+      properties:
+        code: {type: string, example: "SAVE20"}
+        discountType: {type: string, enum: [percentage, fixed], example: "percentage"}
+        discountValue: {type: number, format: float, example: 20}
+        minOrderValue: {type: number, format: float, example: 500}
+        maxDiscount: {type: number, format: float, example: 200}
+        isValid: {type: boolean, example: true}
+        validFrom: {type: string, format: date-time}
+        validUntil: {type: string, format: date-time}
+        usageLimit: {type: integer, example: 100}
+        usedCount: {type: integer, example: 45}
+        applicableCategories: {type: array, items: {type: string}}
+
+    GiftPoints:
+      type: object
+      required: [userId, balance]
+      properties:
+        userId: {type: string, example: "user_123"}
+        balance: {type: integer, example: 250}
+        earned: {type: integer, example: 500}
+        redeemed: {type: integer, example: 250}
+        expiringPoints: {type: integer, example: 50}
+        expiryDate: {type: string, format: date}
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              id: {type: string}
+              type: {type: string, enum: [earned, redeemed, expired]}
+              points: {type: integer}
+              description: {type: string}
+              date: {type: string, format: date-time}
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: {type: string, example: "INVALID_REQUEST"}
+        message: {type: string, example: "Invalid request parameters"}
+        details: {type: object}
+
+    Pagination:
+      type: object
+      required: [page, limit, total, totalPages]
+      properties:
+        page: {type: integer, minimum: 1, example: 1}
+        limit: {type: integer, minimum: 1, example: 20}
+        total: {type: integer, minimum: 0, example: 100}
+        totalPages: {type: integer, minimum: 0, example: 5}
+        hasNext: {type: boolean, example: true}
+        hasPrev: {type: boolean, example: false}
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    UnauthorizedError:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+
+security:
+  - bearerAuth: []

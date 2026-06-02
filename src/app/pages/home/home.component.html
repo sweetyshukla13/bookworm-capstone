@@ -55,7 +55,7 @@
     @if (recommendedBooks.length > 0) {
       <section class="mb-8">
         <h2 class="text-2xl font-bold text-white mb-4">Recommended for You</h2>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
           @for (book of recommendedBooks; track book.id) {
             <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
           }
@@ -67,7 +67,7 @@
     @if (bestsellers.length > 0) {
       <section class="mb-8">
         <h2 class="text-2xl font-bold text-white mb-4">Bestsellers this Month</h2>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
           @for (book of bestsellers; track book.id) {
             <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
           }
@@ -79,7 +79,7 @@
     @if (newLaunches.length > 0) {
       <section class="mb-8">
         <h2 class="text-2xl font-bold text-white mb-4">New Launches</h2>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
           @for (book of newLaunches; track book.id) {
             <app-book-card [book]="book" (addToCartClicked)="onAddToCart($event)"></app-book-card>
           }

@@ -1,0 +1,48 @@
+/* Order History Component Styles */
+
+.order-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.order-item-image {
+  transition: transform 0.2s ease;
+}
+
+.order-item-image:hover {
+  transform: scale(1.05);
+}
+
+/* Animation for expanding details */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 2000px;
+  }
+}
+
+.order-details-expanded {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .order-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Made with Bob */

@@ -1,0 +1,156 @@
+<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">My Wishlist</h1>
+        <p class="mt-2 text-gray-600">{{ wishlistItems().length }} item(s) in your wishlist</p>
+      </div>
+      
+      @if (wishlistItems().length > 0) {
+        <div class="flex gap-3">
+          <button 
+            (click)="addAllToCart()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            Add All to Cart
+          </button>
+          <button 
+            (click)="clearWishlist()"
+            class="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium">
+            Clear Wishlist
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !loading()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-800">{{ error() }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!loading() && !error() && wishlistItems().length === 0) {
+      <div class="text-center py-12">
+        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">Your wishlist is empty</h3>
+        <p class="mt-2 text-gray-500">Start adding books you love to your wishlist!</p>
+        <div class="mt-6">
+          <a routerLink="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+            Browse Books
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Wishlist Items -->
+    @if (!loading() && !error() && wishlistItems().length > 0) {
+      <div class="space-y-4">
+        @for (item of wishlistItems(); track item.id) {
+          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="flex gap-4 p-4">
+              <!-- Book Cover -->
+              <div class="flex-shrink-0 cursor-pointer" (click)="viewBookDetails(item.bookId)">
+                <img 
+                  [src]="item.book?.coverImage || 'assets/placeholder-book.jpg'" 
+                  [alt]="item.book?.title"
+                  class="w-24 h-36 object-cover rounded-md shadow hover:opacity-80 transition-opacity">
+              </div>
+
+              <!-- Book Details -->
+              <div class="flex-1 flex flex-col justify-between min-w-0">
+                <div>
+                  <h3 
+                    class="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer mb-1"
+                    (click)="viewBookDetails(item.bookId)">
+                    {{ item.book?.title }}
+                  </h3>
+                  <p class="text-sm text-gray-600 mb-2">by {{ item.book?.author }}</p>
+                  
+                  <!-- Price -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xl font-bold text-gray-900">{{ formatCurrency(item.book?.price || 0) }}</span>
+                    @if (item.book && item.book.originalPrice && item.book.originalPrice > item.book.price) {
+                      <span class="text-sm text-gray-500 line-through">{{ formatCurrency(item.book.originalPrice) }}</span>
+                      <span class="text-sm text-green-600 font-medium">
+                        Save {{ formatCurrency(calculateSavings(item)) }}
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Stock Status -->
+                  <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                    In Stock
+                  </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 mt-4">
+                  <button
+                    (click)="addToCart(item)"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    Add to Cart
+                  </button>
+                  <button 
+                    (click)="removeFromWishlist(item.bookId)"
+                    class="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium">
+                    Remove
+                  </button>
+                  <button 
+                    (click)="viewBookDetails(item.bookId)"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Summary -->
+      <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Wishlist Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Total Items:</span>
+            <span class="font-medium text-gray-900">{{ wishlistItems().length }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Total Value:</span>
+            <span class="font-medium text-gray-900">{{ formatCurrency(getTotalValue()) }}</span>
+          </div>
+          @if (getTotalSavings() > 0) {
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Total Savings:</span>
+              <span class="font-medium text-green-600">{{ formatCurrency(getTotalSavings()) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Made with Bob -->

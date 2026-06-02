@@ -1,9 +1,24 @@
-<a [routerLink]="['/book', book().id]" 
-   class="block bg-[#2a2a2a] rounded-lg overflow-hidden hover:bg-[#3a3a3a] transition-all hover:scale-105 cursor-pointer">
+<a [routerLink]="['/book', book().id]"
+   class="block bg-[#2a2a2a] rounded-lg overflow-hidden hover:bg-[#3a3a3a] transition-all hover:scale-105 cursor-pointer relative">
+  <!-- Wishlist Button -->
+  <button
+    (click)="onToggleWishlist($event)"
+    class="absolute top-2 right-2 z-10 p-2 rounded-full transition-all"
+    [class.bg-red-500]="isInWishlist()"
+    [class.bg-gray-700]="!isInWishlist()"
+    [class.hover:bg-red-600]="isInWishlist()"
+    [class.hover:bg-gray-600]="!isInWishlist()"
+    [title]="isInWishlist() ? 'Remove from wishlist' : 'Add to wishlist'">
+    <svg class="w-5 h-5 text-white" [class.fill-current]="isInWishlist()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+    </svg>
+  </button>
+
   <div class="flex gap-4 p-4">
     <!-- Book Cover -->
     <div class="flex-shrink-0">
-      <img [src]="book().coverImage" 
+      <img [src]="book().coverImage"
            [alt]="book().title"
            class="w-24 h-36 object-cover rounded-md shadow-lg">
     </div>
@@ -17,10 +32,15 @@
         
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">{{ book().format }}</span>
-          @for (tag of book().tags; track tag) {
-            <span class="text-xs px-2 py-1 bg-blue-900/30 text-blue-400 rounded">{{ tag }}</span>
-          }
+         
         </div>
+       <div class="flex flex-wrap items-center gap-2 mb-2">
+         @for (tag of book().tags; track tag; let last = $last) {
+           <span class="text-sm text-blue-400 underline underline-offset-2 hover:text-blue-300">
+             {{ tag }}@if (!last) {,}
+           </span>
+         }
+       </div>
       </div>
 
       <div class="flex items-center justify-between">

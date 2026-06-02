@@ -1,181 +1,219 @@
-# Book Worm - E-Bookstore Platform
+# 📚 Book Worm E-Bookstore
 
-A modern, responsive Angular 17+ e-bookstore application with a dark theme UI, built using standalone components and TailwindCSS.
+A complete full-stack e-commerce platform for online book shopping built with Angular and Node.js.
 
-## Features
+## 🏗️ Project Structure
 
-- 🎨 **Dark Theme UI** - Modern, eye-friendly dark interface
-- 📚 **Book Catalog** - Browse books by categories with search and filters
-- 🔍 **Book Details** - Detailed book information with reviews and related books
-- 🛒 **Shopping Cart** - Add books to cart with quantity management
-- 💳 **Checkout Flow** - Complete checkout with address form and payment options
-- ✅ **Order Success** - Beautiful success confirmation page
-- 📱 **Responsive Design** - Works seamlessly on all devices
-- ⚡ **Angular 17+ Standalone Components** - Modern Angular architecture
-- 🎯 **TailwindCSS** - Utility-first CSS framework for styling
-
-## Tech Stack
-
-- **Angular 17+** - Latest Angular with standalone components
-- **TypeScript** - Type-safe development
-- **TailwindCSS** - Utility-first CSS framework
-- **Angular Router** - Client-side routing
-- **Angular Signals** - Reactive state management
-
-## Project Structure
+This is a monorepo containing both frontend and backend applications:
 
 ```
 book-worm/
-├── src/
+├── src/                    # Angular Frontend Application
 │   ├── app/
-│   │   ├── components/          # Reusable components
-│   │   │   ├── header/          # Navigation header
-│   │   │   ├── sidebar/         # Category sidebar
-│   │   │   └── book-card/       # Book display card
-│   │   ├── pages/               # Page components
-│   │   │   ├── home/            # Home page with book listings
-│   │   │   ├── book-detail/     # Book detail page
-│   │   │   ├── cart/            # Shopping cart page
-│   │   │   ├── payment/         # Payment page
-│   │   │   └── payment-success/ # Success confirmation
-│   │   ├── services/            # Business logic services
-│   │   │   └── book.service.ts  # Book and cart management
-│   │   ├── models/              # TypeScript interfaces
-│   │   │   └── book.model.ts    # Data models
-│   │   ├── app.routes.ts        # Route configuration
-│   │   └── app.ts               # Root component
-│   ├── styles.css               # Global styles
-│   └── index.html               # HTML entry point
-├── tailwind.config.js           # TailwindCSS configuration
-└── package.json                 # Dependencies
+│   ├── styles.css
+│   └── index.html
+├── backend/                # Node.js + Express Backend API
+│   ├── src/
+│   │   ├── config/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   └── utils/
+│   ├── package.json
+│   └── README.md
+├── openapi.yaml           # API Documentation
+├── package.json           # Frontend dependencies
+└── README.md             # This file
 ```
 
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
+- Node.js >= 18.0.0
+- PostgreSQL >= 14.0
+- npm >= 9.0.0
 
-- Node.js (v18 or higher)
-- npm or yarn
+### Frontend Setup
 
-### Installation
-
-1. Navigate to the project directory:
-```bash
-cd book-worm
-```
-
-2. Install dependencies:
+1. **Install dependencies**
 ```bash
 npm install
 ```
 
-3. Start the development server:
+2. **Run development server**
 ```bash
 npm start
 ```
 
-4. Open your browser and navigate to:
-```
-http://localhost:4200
-```
+The frontend will be available at `http://localhost:4200`
 
-## Available Scripts
+### Backend Setup
 
-- `npm start` - Start development server
-- `npm run build` - Build for production
-- `npm test` - Run unit tests
-- `npm run lint` - Lint the code
-
-## Features Overview
-
-### Home Page
-- Category sidebar with 20+ categories
-- Search functionality
-- Multiple filter options (Language, Format, Price Range, Sort)
-- Book sections: Recommended, Bestsellers, New Launches
-- Responsive book cards with quick add-to-cart
-
-### Book Detail Page
-- Large book cover image
-- Comprehensive book information
-- Author biography section
-- Customer reviews with rating system
-- Related books recommendations
-- Add to cart and wishlist options
-
-### Shopping Cart
-- Cart items with quantity controls
-- Address form for delivery
-- Order summary with pricing breakdown
-- Coupon code application
-- Responsive layout
-
-### Payment Page
-- Multiple payment methods (Credit Card, Debit Card, UPI, Wallet)
-- Animated background with floating books
-- Secure payment form
-- Beautiful UI with smooth transitions
-
-### Success Page
-- Order confirmation with purchased books
-- Animated success indicator
-- Continue shopping option
-
-## Customization
-
-### Colors
-Edit `tailwind.config.js` to customize the color scheme:
-```javascript
-theme: {
-  extend: {
-    colors: {
-      dark: {
-        bg: '#1a1a1a',
-        card: '#2a2a2a',
-        hover: '#3a3a3a',
-      }
-    }
-  }
-}
+1. **Navigate to backend directory**
+```bash
+cd backend
 ```
 
-### Mock Data
-Update book data in `src/app/services/book.service.ts`:
-```typescript
-private mockBooks: Book[] = [
-  // Add your books here
-];
+2. **Install dependencies**
+```bash
+npm install
 ```
 
-## Browser Support
+3. **Configure environment**
+```bash
+cp .env.example .env
+# Edit .env with your database credentials
+```
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+4. **Create PostgreSQL database**
+```sql
+CREATE DATABASE bookworm;
+```
 
-## Contributing
+5. **Run backend server**
+```bash
+npm run dev
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+The API will be available at `http://localhost:3000/api/v1`
 
-## License
+## 📖 Documentation
 
-This project is licensed under the MIT License.
+- **Frontend**: Angular 18 application with Tailwind CSS
+- **Backend**: See [`backend/README.md`](backend/README.md) for detailed API documentation
+- **API Specification**: See [`openapi.yaml`](openapi.yaml) for complete OpenAPI 3.0 specification
 
-## Acknowledgments
+## 🎯 Features
 
-- Book cover images from Unsplash
-- Icons from Heroicons
-- Font: Inter from Google Fonts
+### Frontend
+- ✅ User authentication (Login/Signup)
+- ✅ Book browsing and search
+- ✅ Shopping cart management
+- ✅ Wishlist functionality
+- ✅ Order placement and tracking
+- ✅ User profile management
+- ✅ Responsive design with Tailwind CSS
 
-## Contact
+### Backend API
+- ✅ RESTful API with 40+ endpoints
+- ✅ JWT authentication
+- ✅ PostgreSQL database with Sequelize ORM
+- ✅ Complete e-commerce functionality
+- ✅ Payment processing
+- ✅ Order management
+- ✅ Review system
+- ✅ Coupon validation
+- ✅ Gift points system
 
-For questions or support, please open an issue in the repository.
+## 🔧 Development
+
+### Frontend Development
+```bash
+npm start              # Start dev server
+npm run build          # Build for production
+npm test               # Run tests
+```
+
+### Backend Development
+```bash
+cd backend
+npm run dev            # Start with nodemon
+npm start              # Start production server
+npm run migrate        # Run database migrations
+npm run seed           # Seed database
+npm test               # Run tests
+```
+
+## 📦 Tech Stack
+
+### Frontend
+- **Framework**: Angular 18
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Angular HttpClient
+- **Routing**: Angular Router
+- **State Management**: Angular Signals
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **ORM**: Sequelize
+- **Authentication**: JWT + bcryptjs
+- **Validation**: express-validator
+- **Security**: Helmet, CORS, Rate Limiting
+
+## 🌐 API Endpoints
+
+See [`openapi.yaml`](openapi.yaml) for complete API documentation.
+
+### Main Endpoint Categories:
+- `/api/v1/auth` - Authentication
+- `/api/v1/books` - Book catalog
+- `/api/v1/categories` - Categories
+- `/api/v1/cart` - Shopping cart
+- `/api/v1/wishlist` - Wishlist
+- `/api/v1/orders` - Orders
+- `/api/v1/payments` - Payments
+- `/api/v1/addresses` - User addresses
+- `/api/v1/reviews` - Book reviews
+- `/api/v1/coupons` - Coupon validation
+- `/api/v1/shipments` - Order tracking
+- `/api/v1/gift-points` - Gift points
+
+## 🔒 Security
+
+- Password hashing with bcryptjs
+- JWT token-based authentication
+- Rate limiting to prevent abuse
+- CORS configuration
+- Helmet for security headers
+- Input validation and sanitization
+- SQL injection protection via ORM
+
+## 📝 Environment Variables
+
+### Frontend
+Configure in `src/environments/`:
+- API endpoint URL
+- Environment-specific settings
+
+### Backend
+See `backend/.env.example` for all required variables:
+- Database credentials
+- JWT secrets
+- CORS origins
+- Rate limiting settings
+- Payment gateway keys
+
+## 🚀 Deployment
+
+### Frontend Deployment
+```bash
+npm run build
+# Deploy dist/ folder to your hosting service
+```
+
+### Backend Deployment
+```bash
+cd backend
+npm install --production
+npm start
+# Or use PM2: pm2 start src/server.js
+```
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 👥 Contributors
+
+Book Worm Development Team
+
+## 📞 Support
+
+For support, email support@bookworm.com
 
 ---
 
-Built with ❤️ using Angular 17+ and TailwindCSS
+Made with ❤️ by the Book Worm Team

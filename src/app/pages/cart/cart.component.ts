@@ -43,7 +43,24 @@ export class CartComponent {
   }
 
   applyCoupon(): void {
-    console.log('Applying coupon:', this.couponCode);
+    if (!this.couponCode.trim()) {
+      alert('Please enter a coupon code');
+      return;
+    }
+
+    this.bookService.validateCoupon(this.couponCode).subscribe({
+      next: (response) => {
+        if (response.success) {
+          alert(response.message || 'Coupon applied successfully!');
+        } else {
+          alert(response.message || 'Invalid coupon code');
+        }
+      },
+      error: (error) => {
+        console.error('Error applying coupon:', error);
+        alert('Failed to apply coupon. Please try again.');
+      }
+    });
   }
 
   proceedToPayment(): void {

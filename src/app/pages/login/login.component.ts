@@ -32,18 +32,24 @@ export class LoginComponent {
 
     this.isLoading.set(true);
 
-    const result = this.authService.login({
+    this.authService.login({
       email: this.email(),
       password: this.password()
+    }).subscribe({
+      next: (result) => {
+        this.isLoading.set(false);
+        if (result.success) {
+          this.router.navigate(['/']);
+        } else {
+          this.errorMessage.set(result.message);
+        }
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        this.errorMessage.set('An error occurred. Please try again.');
+        console.error('Login error:', error);
+      }
     });
-
-    this.isLoading.set(false);
-
-    if (result.success) {
-      this.router.navigate(['/']);
-    } else {
-      this.errorMessage.set(result.message);
-    }
   }
 }
 

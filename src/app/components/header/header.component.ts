@@ -26,7 +26,14 @@ export class HeaderComponent {
 
   logout(): void {
     this.showUserMenu.set(false);
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Logout successful');
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+      }
+    });
   }
 }
 

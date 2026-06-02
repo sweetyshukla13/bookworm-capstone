@@ -8,6 +8,7 @@ export interface Book {
   description: string;
   category: string;
   format: 'Paperback' | 'Hardcover' | 'eBook';
+  language?: string;
   rating: number;
   reviewCount: number;
   deliveryDate: string;

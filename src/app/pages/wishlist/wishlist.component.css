@@ -1,0 +1,39 @@
+/* Wishlist Component Styles */
+
+.wishlist-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wishlist-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Animation for removing items */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+.removing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .wishlist-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .wishlist-actions button {
+    width: 100%;
+  }
+}
+
+/* Made with Bob */
